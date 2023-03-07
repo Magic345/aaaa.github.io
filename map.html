@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Маршрут - 20</title>
+<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.css" />
+<script src="http://cdn.leafletjs.com/leaflet-0.7.1/leaflet.js"></script>
+<script>
+// this is a special type of icon. You can remove this class if you don't need it
+L.PopupIcon = L.Icon.extend({
+    initialize: function( text, options ) {
+        L.Icon.prototype.initialize.call(this, options);
+        this._text = text;
+    },
+
+    createIcon: function() {
+        var pdiv = document.createElement('div'),
+            div = document.createElement('div'),
+            width = 150;
+
+        pdiv.style.position = 'absolute';
+        div.style.position = 'absolute';
+        div.style.width = width + 'px';
+        div.style.bottom = '-3px';
+        div.style.pointerEvents = 'none';
+        div.style.left = (-width / 2) + 'px';
+        div.style.margin = div.style.padding = '0';
+        pdiv.style.margin = pdiv.style.padding = '0';
+
+        var contentDiv = document.createElement('div');
+        contentDiv.innerHTML = this._text;
+        contentDiv.style.textAlign = 'center';
+        contentDiv.style.lineHeight = '1.2';
+        contentDiv.style.backgroundColor = 'white';
+        contentDiv.style.boxShadow = '0px 1px 10px rgba(0, 0, 0, 0.655)';
+        contentDiv.style.padding = '4px 7px';
+        contentDiv.style.borderRadius = '5px';
+        contentDiv.style.margin = '0 auto';
+        contentDiv.style.display = 'table';
+        contentDiv.style.pointerEvents = 'auto';
+
+        var stop = L.DomEvent.stopPropagation;
+        L.DomEvent
+            .on(contentDiv, 'click', stop)
+            .on(contentDiv, 'mousedown', stop)
+            .on(contentDiv, 'dblclick', stop);
+
+        var tipcDiv = document.createElement('div');
+        tipcDiv.className = 'leaflet-popup-tip-container';
+        tipcDiv.style.width = '20px';
+        tipcDiv.style.height = '11px';
+        tipcDiv.style.padding = '0';
+        tipcDiv.style.margin = '0 auto';
+        var tipDiv = document.createElement('div');
+        tipDiv.className = 'leaflet-popup-tip';
+        tipDiv.style.width = tipDiv.style.height = '8px';
+        tipDiv.style.marginTop = '-5px';
+        tipDiv.style.boxShadow = 'none';
+        tipcDiv.appendChild(tipDiv);
+
+        div.appendChild(contentDiv);
+        div.appendChild(tipcDiv);
+        pdiv.appendChild(div);
+        return pdiv;
+    },
+
+    createShadow: function () {
+        return null;
+    }
+});
+</script>
+<style>
+html, body, #map { margin: 0; height: 100%; }
+#title {
+    position: absolute;
+    width: 500px;
+    min-width: 300px;
+    margin: 0 auto;
+    left: 0; right: 0;
+    top: 10px;
+    padding: 6px;
+    border-radius: 6px;
+    background-color: white;
+    opacity: 0.9;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    display: none;
+}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="title"></div>
+<script>
+var map = L.map('map');
+L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+    minZoom: 0, maxZoom: 19
+}).addTo(map);
+
+var data = {"type":"FeatureCollection","title":"\u041c\u0430\u0440\u0448\u0440\u0443\u0442 - 20","features":[{"type":"Feature","properties":{"title":"A"},"geometry":{"type":"Point","coordinates":[37.51007,47.09933]}},{"type":"Feature","properties":{"title":"B"},"geometry":{"type":"Point","coordinates":[37.56613,47.14034]}},{"type":"Feature","properties":{},"geometry":{"type":"LineString","coordinates":[[37.51007,47.09932],[37.51008,47.09937],[37.51726,47.09888],[37.52357,47.09843],[37.53011,47.09796],[37.53046,47.09798],[37.53735,47.09751],[37.54326,47.09709],[37.54339,47.09728],[37.54357,47.09748],[37.54391,47.09785],[37.54458,47.09858],[37.54591,47.10006],[37.5507,47.10513],[37.55239,47.10693],[37.55409,47.10873],[37.55431,47.10887],[37.55441,47.10897],[37.55451,47.10907],[37.55713,47.11189],[37.55865,47.11354],[37.55963,47.11464],[37.56012,47.1152],[37.56083,47.11599],[37.56203,47.11729],[37.56273,47.11807],[37.563,47.11851],[37.56311,47.11917],[37.56315,47.12016],[37.56316,47.1217],[37.56319,47.12197],[37.56325,47.12223],[37.56344,47.12285],[37.56382,47.12421],[37.56421,47.12555],[37.56556,47.13013],[37.56649,47.13302],[37.56742,47.13579],[37.56837,47.13874],[37.56863,47.13952],[37.56874,47.13966],[37.56879,47.13985],[37.56613,47.14029],[37.56614,47.14035]]}}]};
+
+if( data.title ) {
+    var t = document.getElementById('title');
+    t.innerHTML = data.title;
+    t.style.display = 'block';
+}
+
+var layer = L.geoJson(data, {
+    style: function( feature ) {
+        var style = {};
+        if( feature.properties.color)
+            style.color = feature.properties.color;
+        if( feature.geometry.type == 'Polygon' ) {
+            style.weight = 3;
+            style.opacity = 0.7;
+            style.fill = true;
+            style.fillOpacity = 0.1;
+        } else if( feature.geometry.type == 'LineString' ) {
+            style.weight = 5;
+            style.opacity = 0.7;
+        }
+        return style;
+    },
+    onEachFeature: function( feature, layer ) {
+        var title = feature.properties.title;
+        if( title ) {
+            if( layer instanceof L.Marker && title.length <= 30 ) {
+                layer.setIcon(new L.PopupIcon(title));
+                layer.options.clickable = false;
+            } else
+                layer.bindPopup(title);
+        } else
+            layer.options.clickable = false;
+    }
+}).addTo(map);
+map.fitBounds(layer.getBounds());
+</script>
+</body>
+</html>
